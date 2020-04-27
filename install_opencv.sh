@@ -109,4 +109,4 @@ make install
 ldconfig
 
 # To test if OpenCV has been installed successfully
-pkg-config --
+pkg-config --cflags --libs opencv4
