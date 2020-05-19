@@ -6,6 +6,7 @@
 # with bash script
 
 # Use /opt as directory for cloning
+sudo -s
 cd /opt
 
 # Indicate where the process is going to be done
@@ -22,6 +23,7 @@ sudo apt-get install python-dev python-numpy
 sudo apt-get install python3-dev python3-numpy
 
 # gtk support for GUI features, Camera support (v4l), Media Support (ffmpeg, gstreamer) etc
+sudo apt-get install build-essential
 sudo apt-get install libavcodec-dev libavforma-dev libswscale-dev
 sudo apt-get install libgstreamer-plugins-base.0-dev libgstreamer1.0-dev
 
@@ -34,11 +36,31 @@ sudo apt-get install libgtk-3-dev
 # Optional Dependencies
 # supporting files for image formats like
 # png, jpeg, jpeg2000, tiff, WebP etc
-sudo apt-get install libpng-dev \
+sudo apt-get install -y libpng-dev \
                      libjpeg-dev \
                      libopenexr-dev \
                      libtiff-dev \
-                     libwebp-dev
+                     libjpeg-dev \
+                     libavcodec-dev \
+                     libavformat-dev \
+                     libswscale-dev \
+                     libxine2-dev \
+                     libv4l-dev \
+                     libtbb-dev \
+                     libqt4-dev \
+                     libmp3lame-dev \
+                     libopencore-amrnb-dev \
+                     libopencore-amrwb-dev\
+                     libtheora-dev \
+                     libvorbis-dev \
+                     x264 \
+                     v4l-utils \
+                     libwebp-dev \
+                     libopencv-dev \
+                     libdc1394-22 \
+                     libdc1394-22-dev \
+
+
 
 # Check the existence of a file
 # if not found, perform user's manual
@@ -82,21 +104,13 @@ echo $INSTALL_OPENCV_CONTRIB
 TestOpenCV $CV_CONTRIB "$INSTALL_OPENCV_CONTRIB_CMD"
 
 RL_DIR="release"
-MK_RL='mkdir "$RL_DIR"'
+MK_RL='sudo mkdir "$RL_DIR"'
 TestOpenCV $RL_DIR "$MK_RL"
 cd $RL_DIR
 echo $PWD
 
-cmake -D BUILD_TIFF=ON \
-      -D WITH_CUFA=OFF \
-      -D ENABLE_AVX=OFF \
-      -D WITH_OPENGL=OFF \
-      -D WITH_OPENCL=OFF \
-      -D WITH_IPP=OFF \
-      -D WITH_EIGEN=OFF \
-      -D WITH_V4L=OFF \
-      -D WITH_VTK=OFF \
-      -D WITH_1394=OFF \
+cmake -D BUILD_EXAMPLES=ON \
+      -D INSTALL_C_EXAMPLES=ON \
       -D BUILD_TESTS=OFF \
       -D BUILD_PERF_TESTS=OFF \
       -D CMAKE_BUILD_TYPE=RELEASE \
@@ -106,7 +120,8 @@ cmake -D BUILD_TIFF=ON \
 
 make -j10
 make install
-ldconfig
+
+sudo ldconfig
 
 # To test if OpenCV has been installed successfully
 pkg-config --cflags --libs opencv4
