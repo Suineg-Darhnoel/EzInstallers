@@ -1,6 +1,6 @@
 #!/bin/bash
 # ------------------------------------------ #
-# 2020, 2001
+# 2020, 2021
 # Install latest version of OpenCV for C++
 # Ubuntu 18.04, 20.04
 # with bash script
@@ -19,6 +19,25 @@ OFF='\033[m'
 # INIT
 # ------------------------------------------ #
 SUCCESS=0 # installation flag
+
+# configuration list
+declare -A LIST=(
+    [CMAKE_INSTALL_PREFIX]="/usr/local"
+    [USE_EIGEN]="/usr/include/eigen3"
+    [OPENCV_EXTRA_MODULES]="/opt/opencv_contrib/modules /opt/opencv"
+    [BUID_EXAMPLES]=ON
+    [INSTALL_C_EXAMPLES]=ON
+    [BUILD_TESTS]=OFF
+    [BUILD_PERF_TESTS]=OFF
+    [WITH_TBB]=ON
+    [WITH_V4L]=ON
+    [WITH_QT]=ON
+    [WITH_OPENGL]=ON
+    [CMAKE_BUILD_TYPE]=RELEASE
+    [OPENCV_GENERATE_PKGCONFIG]=ON
+)
+
+# dependency list
 LIB_LIST=(
 
     cmake build-essential
@@ -142,9 +161,11 @@ check_installation(){
     PROG_MSG=$1
     TARGET=$2
     WARNING_MSG=$3
-    if [[ $TARGET == *${PROG_MSG}* ]];then
+
+    if grep -q "${TARGET}" <<< "$PROG_MSG";then
+        SUCCESS=0
         echo -e "OPENCV4 installation ${BAD}[${OFF} FAILED ${BAD}]${OFF}"
-        echo "Please manually check if there is some mistakes to reinstall"
+        echo "Please check if there are some mistakes before reinstalling"
     else
         SUCCESS=1
         echo -e "OPENCV4 ${GOOD}[${OFF} installed ${GOOD}]${OFF}"
@@ -194,19 +215,14 @@ get_source(){
 
 cmake_start(){
     show_title "START CMAKE"
-    sudo cmake -D BUILD_EXAMPLES=ON \
-              -D USE_EIGEN=/usr/include/eigen3 \
-              -D INSTALL_C_EXAMPLES=ON \
-              -D BUILD_TESTS=OFF \
-              -D BUILD_PERF_TESTS=OFF \
-              -D WITH_TBB=ON \
-              -D WITH_V4L=ON \
-              -D WITH_QT=ON \
-              -D WITH_OPENGL=ON \
-              -D CMAKE_BUILD_TYPE=RELEASE \
-              -D OPENCV_GENERATE_PKGCONFIG=ON \
-              -D CMAKE_INSTALL_PREFIX=/usr/local \
-              -D OPEN_CV_EXTRA_MODULES=/opt/opencv_contrib/modules /opt/opencv/
+    MYCONFIG=""
+    echo ">> CURRENT CONFIG <<"
+    for i in ${!LIST[@]};do
+        set -- $i
+        echo -e "${GOOD}[${OFF} $1=${LIST[$i]} ${GOOD}]${OFF}"
+        MYCONFIG+=" -D$1=${LIST[$i]} "
+    done
+    sudo cmake $MYCONFIG
 }
 
 install_opencv4(){
@@ -247,8 +263,8 @@ main(){
         install_opencv4
     fi
 
-    PKG_MSG=$(check_opencv4_existence)
-    check_installation $PKG_MSG "No Package"
+    PKG_MSG="$(check_opencv4_existence)"
+    check_installation $PKG_MSG "No package"
 
     if [[ $SUCCESS -eq 1 ]];then
         echo -e "--------- FOUND ------------"
@@ -258,4 +274,4 @@ main(){
     fi
 }
 
-main
+main # call main function
