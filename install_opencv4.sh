@@ -62,6 +62,9 @@ LIB_LIST=(
     # Intuitive user interface for multiple target
     qtbase5-dev qttools5-dev-tools qt5-default
 
+    # eigen3 for linear algebra
+    libeigen3-dev
+
 );
 
 # Use /opt as directory for cloning
@@ -192,17 +195,18 @@ get_source(){
 cmake_start(){
     show_title "START CMAKE"
     sudo cmake -D BUILD_EXAMPLES=ON \
-          -D INSTALL_C_EXAMPLES=ON \
-          -D BUILD_TESTS=OFF \
-          -D BUILD_PERF_TESTS=OFF \
-          -D WITH_TBB=ON \
-          -D WITH_V4L=ON \
-          -D WITH_QT=ON \
-          -D WITH_OPENGL=ON \
-          -D CMAKE_BUILD_TYPE=RELEASE \
-          -D OPENCV_GENERATE_PKGCONFIG=ON \
-          -D CMAKE_INSTALL_PREFIX=/usr/local \
-          -D OPEN_CV_EXTRA_MODULES=/opt/opencv_contrib/modules /opt/opencv/
+              -D USE_EIGEN=/usr/include/eigen3 \
+              -D INSTALL_C_EXAMPLES=ON \
+              -D BUILD_TESTS=OFF \
+              -D BUILD_PERF_TESTS=OFF \
+              -D WITH_TBB=ON \
+              -D WITH_V4L=ON \
+              -D WITH_QT=ON \
+              -D WITH_OPENGL=ON \
+              -D CMAKE_BUILD_TYPE=RELEASE \
+              -D OPENCV_GENERATE_PKGCONFIG=ON \
+              -D CMAKE_INSTALL_PREFIX=/usr/local \
+              -D OPEN_CV_EXTRA_MODULES=/opt/opencv_contrib/modules /opt/opencv/
 }
 
 install_opencv4(){
