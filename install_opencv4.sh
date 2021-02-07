@@ -255,6 +255,7 @@ install_opencv4(){
 main(){
     show_dependencies
     install_dependencies
+    get_source
 
     confirm_msg "Do you want to finish installing OPENCV4"
 
