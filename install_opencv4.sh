@@ -18,13 +18,38 @@ OFF='\033[m'
 # ------------------------------------------ #
 # INIT
 # ------------------------------------------ #
+# assign the right directory where you
+# want the installation to start
+OPENCV_DIR='/opt/opencv451'
+EIGEN_DIR='/usr/include/eigen3'
 SUCCESS=0 # installation flag
 
+# use command as root user
+[ `whoami` = root ] || exec sudo su -c $0 root
+
+if [ ! -d /opt/opencv451 ];then
+    echo -e "dir <${BAD}${OPENCV_DIR}${OFF}> does not exist."
+    echo "create dir $OPENCV_DIR"
+    sudo mkdir -p $OPENCV_DIR
+else
+    echo -e "dir <${GOOD}${OPENCV_DIR}${OFF}> exists."
+fi
+
+# Use $OPENCV_DIR as directory for cloning
+# Indicate where the process is going to be done
+echo "OpenCV will be installed at <$OPENCV_DIR>"
+cd $OPENCV_DIR
+
+echo "Current Directory :"$PWD
+
+# ------------------------------------------ #
+# DEPENDENCY LIST / CMAKE CONFIG
+# ------------------------------------------ #
 # configuration list
 declare -A LIST=(
     [CMAKE_INSTALL_PREFIX]="/usr/local"
-    [USE_EIGEN]="/usr/include/eigen3"
-    [OPENCV_EXTRA_MODULES]="/opt/opencv_contrib/modules /opt/opencv"
+    [USE_EIGEN]="$EIGEN_DIR"
+    [OPENCV_EXTRA_MODULES]="$OPENCV_DIR/opencv_contrib/modules $OPENCV_DIR/opencv"
     [BUID_EXAMPLES]=ON
     [INSTALL_C_EXAMPLES]=ON
     [BUILD_TESTS]=OFF
@@ -85,16 +110,6 @@ LIB_LIST=(
     libeigen3-dev
 
 );
-
-# Use /opt as directory for cloning
-# use command as root user
-
-[ `whoami` = root ] || exec sudo su -c $0 root
-
-echo "Opencv will be install at '/opt'"
-cd /opt
-# Indicate where the process is going to be done
-echo "Current Directory :"$PWD
 
 # ------------------------------------------ #
 # INFORMATION FUNCTIONS
@@ -259,7 +274,7 @@ main(){
 
     confirm_msg "Do you want to finish installing OPENCV4"
 
-    if [ -d /opt/opencv ];then
+    if [ -d $OPENCV_DIR/opencv ];then
         cmake_start
         install_opencv4
     fi
