@@ -49,7 +49,7 @@ echo "Current Directory :"$PWD
 declare -A LIST=(
     [CMAKE_INSTALL_PREFIX]="/usr/local"
     [USE_EIGEN]="$EIGEN_DIR"
-    [OPENCV_EXTRA_MODULES]="$OPENCV_DIR/opencv_contrib/modules $OPENCV_DIR/opencv"
+    [OPENCV_EXTRA_MODULES_PATH]="$OPENCV_DIR/opencv_contrib/modules $OPENCV_DIR/opencv"
     [BUID_EXAMPLES]=ON
     [INSTALL_C_EXAMPLES]=ON
     [BUILD_TESTS]=OFF
@@ -58,19 +58,20 @@ declare -A LIST=(
     [WITH_V4L]=ON
     [WITH_QT]=ON
     [WITH_OPENGL]=ON
+    [WITH_FFMPEG]=ON
     [CMAKE_BUILD_TYPE]=RELEASE
     [OPENCV_GENERATE_PKGCONFIG]=ON
+    [PYTHON_DEFAULT_EXECUTABLE]=$(which python3)
     [BUILD_NEW_PYTHON_SUPPORT]=ON
     [BUILD_OPENCV_PYTHON3]=ON
     [HAVE_OPENCV_PYTHON3]=ON
-    [PYTHON_DEFAULT_EXECUTABLE]=$(which python3)
 )
 
 # dependency list
 LIB_LIST=(
 
     cmake build-essential
-    python-dev python-numpy # for python2
+    python-dev-is-python2 python-numpy # for python2
     python3-dev python3-numpy # for python3
 
     # GTK support for GUI features, Camera Support (v4l)
@@ -105,7 +106,6 @@ LIB_LIST=(
     libopencv-dev
     libdc1394-22
     libdc1394-22-dev
-    libqt4-dev
 
     # Intuitive user interface for multiple target
     qtbase5-dev qttools5-dev-tools qt5-default
