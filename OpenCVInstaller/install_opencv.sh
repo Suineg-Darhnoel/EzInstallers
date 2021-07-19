@@ -20,14 +20,18 @@ OFF='\033[m'
 # ------------------------------------------ #
 # assign the right directory where you
 # want the installation to start
-OPENCV_DIR='/opt/opencv451'
-EIGEN_DIR='/usr/include/eigen3'
+# - change folder name for different version of opencv
+CV_VERSION="4.5"
+CV_FOLDER_NAME="opencv${CV_VERSION}"
+OPENCV_DIR="/opt/$CV_FOLDER_NAME"
+EIGEN_DIR="/usr/include/eigen3"
+INSTALL_PREFIX="/usr/local/$CV_FOLDER_NAME"
 SUCCESS=0 # installation flag
 
 # use command as root user
 [ `whoami` = root ] || exec sudo su -c $0 root
 
-if [ ! -d /opt/opencv451 ];then
+if [ ! -d "${OPENCV_DIR}" ];then
     echo -e "dir <${BAD}${OPENCV_DIR}${OFF}> does not exist."
     echo "create dir $OPENCV_DIR"
     sudo mkdir -p $OPENCV_DIR
@@ -47,7 +51,7 @@ echo "Current Directory :"$PWD
 # ------------------------------------------ #
 # configuration list
 declare -A LIST=(
-    [CMAKE_INSTALL_PREFIX]="/usr/local"
+    [CMAKE_INSTALL_PREFIX]="$INSTALL_PREFIX"
     [USE_EIGEN]="$EIGEN_DIR"
     [OPENCV_EXTRA_MODULES_PATH]="$OPENCV_DIR/opencv_contrib/modules $OPENCV_DIR/opencv"
     [BUID_EXAMPLES]=ON
@@ -63,6 +67,7 @@ declare -A LIST=(
     [OPENCV_GENERATE_PKGCONFIG]=ON
     [PYTHON_DEFAULT_EXECUTABLE]=$(which python3)
     [BUILD_NEW_PYTHON_SUPPORT]=ON
+    [BUILD_OPENCV_PYTHON2]=OFF
     [BUILD_OPENCV_PYTHON3]=ON
     [HAVE_OPENCV_PYTHON3]=ON
 )
@@ -159,7 +164,7 @@ confirm_msg(){
 # is the file's name and the second
 # argument is for the manual command line
 
-check_local_opencv_dir(){
+check_and_install_opencv_dir(){
     show_title "CHECK LOCAL OPENCV DIRECTORIES EXISTENCE"
     if [ -e "$1" ]
     then
@@ -168,12 +173,21 @@ check_local_opencv_dir(){
         echo "The file <$1> does not exist"
         # need root priviledge to clone
         eval "$2"
+
+        # switch to the branch we want
+        if [ "$1" == "release" ];then
+            echo "mkdir release"
+        else
+            cd "$1"
+            sudo git checkout "$CV_VERSION"
+            cd ..
+        fi
     fi
 }
 
-check_opencv4_existence(){
-    # To test if OpenCV has been installed successfully
-    pkg-config --cflags --libs opencv4
+check_opencv_existence(){
+    pkg-config --cflags --libs "opencv"
+    pkg-config --cflags --libs "opencv4"
 }
 
 check_installation(){
@@ -181,13 +195,15 @@ check_installation(){
     TARGET=$2
     WARNING_MSG=$3
 
-    if grep -q "${TARGET}" <<< "$PROG_MSG";then
+    GREP_RESULT=$(echo "${PROG_MSG}" | grep -o "${TARGET}")
+    echo $GREP_RESULT
+    if [ $GREP_RESULT ];then
         SUCCESS=0
-        echo -e "OPENCV4 installation ${BAD}[${OFF} FAILED ${BAD}]${OFF}"
+        echo -e "OPENCV installation ${BAD}[${OFF} FAILED ${BAD}]${OFF}"
         echo "Please check if there are some mistakes before reinstalling"
     else
         SUCCESS=1
-        echo -e "OPENCV4 ${GOOD}[${OFF} installed ${GOOD}]${OFF}"
+        echo -e "OPENCV ${GOOD}[${OFF} installed ${GOOD}]${OFF}"
     fi
 }
 
@@ -214,7 +230,7 @@ get_source(){
     # check if the file opencv exists
     # if not found then git clone the repo
     echo $INSTALL_OPENCV
-    check_local_opencv_dir $CV "$INSTALL_OPENCV_CMD"
+    check_and_install_opencv_dir $CV "$INSTALL_OPENCV_CMD"
 
     CV_CONTRIB="opencv_contrib"
     # Command line used to clone opencv_contrib repo
@@ -223,12 +239,12 @@ get_source(){
     # check if the file opencv_contrib exists
     # if not found then git clone the repo
     echo $INSTALL_OPENCV_CONTRIB
-    check_local_opencv_dir $CV_CONTRIB "$INSTALL_OPENCV_CONTRIB_CMD"
+    check_and_install_opencv_dir $CV_CONTRIB "$INSTALL_OPENCV_CONTRIB_CMD"
 
-    RL_DIR="release"
-    MK_RL='sudo mkdir "$RL_DIR"'
-    check_local_opencv_dir $RL_DIR "$MK_RL"
-    cd $RL_DIR
+    RELEASE_DIR="release"
+    MAKE_DIR='sudo mkdir "$RELEASE_DIR"'
+    check_and_install_opencv_dir "$RELEASE_DIR" "$MAKE_DIR"
+    cd $RELEASE_DIR
     echo $PWD
 }
 
@@ -244,8 +260,8 @@ cmake_start(){
     sudo cmake $MYCONFIG
 }
 
-install_opencv4(){
-    show_title "START INSTALLAING OPENCV4"
+install_opencv(){
+    show_title "START INSTALLING OPENCV_${CV_VERSION}"
     confirm_msg "Are you sure to proceed installation?"
 
     # get user input for number of cores for installation process
@@ -263,6 +279,8 @@ install_opencv4(){
     echo "sudo make install"
     sudo make install
 
+    echo $PWD
+    # TODO: create opencv.pc for opencv3, opencv4.pc for opencv4
     echo "sudo ldconfig"
     sudo ldconfig
 }
@@ -276,14 +294,14 @@ main(){
     install_dependencies
     get_source
 
-    confirm_msg "Do you want to finish installing OPENCV4"
+    confirm_msg "Do you want to finish installing OPENCV_${CV_VERSION}"
 
     if [ -d $OPENCV_DIR/opencv ];then
         cmake_start
-        install_opencv4
+        install_opencv
     fi
 
-    PKG_MSG="$(check_opencv4_existence)"
+    PKG_MSG="$(check_opencv_existence)"
     check_installation $PKG_MSG "No package"
 
     if [[ $SUCCESS -eq 1 ]];then
