@@ -1,8 +1,8 @@
-# Flash_Install
+# Installers
 This directory will be used for quick-installing tools that will save us tons of time when we are to install the same packages on our new development environment. Some of us may already have experienced when it comes to installing sophisticated libraries such as `opencv` where the installing process involves complicated configurations and execution steps. That is indeed time consuming since following wrong installation steps may lead to headache googling troubles. Therefore, we as a whole only need a one-time installing tool to finish everything, and save time for pizza.
 
 # Idea in a Nutshell
-As an example, let's see how [install_opencv4] works.
+As an example, let's see how [install\_opencv4] works.
 On my new computer, I want to install `opencv4.5.1`. What i need to do is asking myself in which directory I should put the source files, and response to the [y/N] confirmations, and let the [install_opencv4] do the trick. Here is how it can be seen on our terminal:
 
 ```console
@@ -60,7 +60,7 @@ Installation [cancelled]
 
 ```
 # Tweaking
-If you want to clone in different directory, just look at [install_opencv4] and find `OPENCV_DIR` and change it to your desired path.
+If you want to clone in different directory, just look at [install\_opencv4] and find `OPENCV_DIR` and change it to your desired path.
 *HINT*: `OPENCV_DIR='/path/to/youropencv/'`
 ```bash
 # ------------------------------------------ #
@@ -70,5 +70,3 @@ If you want to clone in different directory, just look at [install_opencv4] and 
 # want the installation to start
 OPENCV_DIR='/opt/opencv451'
 ```
-
-[install_opencv4]: https://github.com/Suineg-Darhnoel/Flash_Install/blob/master/install_opencv4.sh
